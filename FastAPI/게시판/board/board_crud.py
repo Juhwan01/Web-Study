@@ -17,12 +17,12 @@ def insert_post(new_post:NewPost, db:Session):
 
 def list_all_post(db:Session):
     lists = db.query(Board).filter(Board.del_yn == 'Y').all() # del_yn이 Y인 것만 조회
-    return [PostList(no=post.no, writer=post.writer, title=post.title, date=post.date) for post in lists] # 리스트 컴프리헨션
+    return lists
 
 def get_post(post_no:int, db:Session):
     try:
         post = db.query(Board).filter(and_(Board.no == post_no, Board.del_yn == 'Y')).first()
-        return Post(no=post.no, writer=post.writer, title=post.title, content=post.content, date=post.date)
+        return post
     except Exception as e:
         return {"error":str(e), "msg":"해당 게시글이 없습니다."}
 

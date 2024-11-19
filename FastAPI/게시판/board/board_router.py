@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session
 from core.base import get_db
 from fastapi import APIRouter, Depends
 from board import board_crud
-from board.board_schema import NewPost,UpdatePost
+from board.board_schema import NewPost,UpdatePost,PostList
+from typing import List
 
 app = APIRouter(
     prefix="/board",
@@ -12,7 +13,7 @@ app = APIRouter(
 async def create_new_post(new_post:NewPost, db:Session = Depends(get_db)):
     return board_crud.insert_post(new_post, db)
 
-@app.get("/read", description="게시글 조회")
+@app.get("/read",description="게시글 조회")
 async def read_all_post(db:Session = Depends(get_db)):
     return board_crud.list_all_post(db)
 
