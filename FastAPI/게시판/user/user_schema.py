@@ -31,3 +31,12 @@ class NewUserForm(BaseModel):
             raise HTTPException(status_code=422, detail="비밀번호는 문자를 포함해야 합니다.")
         
         return v
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserDTO(BaseModel):
+    id: int
+    user_name: str
+    email: str
