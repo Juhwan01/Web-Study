@@ -1,49 +1,60 @@
 // types/index.ts
-export interface Queue {
-    queue_number: string;   // queueNumber -> queue_number
-    customer_name: string;  // customerName -> customer_name
-    party_size: number;     // partySize -> party_size
-    estimated_wait_time: number;  // estimatedWaitTime -> estimated_wait_time
-    status: 'waiting' | 'called' | 'seated' | 'cancelled';
-    created_at: string;     // createdAt -> created_at
-    phone_number: string;   // 백엔드 스키마에 있는 필드 추가
-  }
-  
-  export interface Table {
-    table_number: string;   // tableNumber -> table_number
-    capacity: number;
-    status: 'available' | 'occupied' | 'reserved' | 'cleaning';
-  }
-  
-  export interface MenuItem {
-    menu_item_id: number;   // id -> menu_item_id
+
+// Menu Types
+export interface MenuItem {
+    id: number;
     name: string;
-    description: string;
     price: number;
+    description: string | null;
     category: string;
-    image_url?: string;     // image -> image_url
+    is_available: boolean;
   }
   
-  export interface Order {
-    order_id: number;       // id -> order_id
-    table_id: number;       // tableId -> table_id
-    items: OrderItem[];
-    status: 'pending' | 'preparing' | 'ready' | 'served' | 'paid';
-    total_amount: number;   // totalAmount -> total_amount
-    created_at: string;     // createdAt -> created_at
+  export interface MenuItemCreate {
+    name: string;
+    price: number;
+    description?: string;
+    category: string;
+    is_available: boolean;
   }
   
+  // Order Types
   export interface OrderItem {
-    menu_item_id: number;   // menuItemId -> menu_item_id
+    menu_item_id: number;
     quantity: number;
     notes?: string;
   }
   
-  // API 요청/응답을 위한 추가 인터페이스들
+  export interface OrderCreate {
+    table_id: number;
+    items: OrderItem[];
+  }
+  
+  export interface OrderUpdate {
+    status: string;
+    completed_at?: string;
+  }
+  
+  export interface Order {
+    id: number;
+    table_id: number;
+    items: OrderItem[];
+    status: string;
+    created_at: string;
+    completed_at?: string;
+    total_amount: number;
+  }
+  
+  // Queue Types
   export interface QueueCreate {
     customer_name: string;
     party_size: number;
-    phone_number: string;
+    phone_number?: string;
+  }
+  
+  export interface QueueUpdate {
+    status: string;
+    seated_at?: string;
   }
   
   export interface QueueResponse {
@@ -51,4 +62,50 @@ export interface Queue {
     estimated_wait_time: number;
     position: number;
     qr_code: string;
+  }
+  
+  export interface Queue {
+    id: number;
+    queue_number: string;
+    customer_name: string;
+    party_size: number;
+    phone_number?: string;
+    status: string;
+    created_at: string;
+    estimated_wait_time: number;
+    seated_at?: string;
+  }
+  
+  export interface QueueScanResponse {
+    status: string;
+    position: number;
+    estimated_wait_time: number;
+    customer_name: string;
+    party_size: number;
+    created_at: string;
+  }
+  
+  // Table Types
+  export interface TableCreate {
+    table_number: number;
+    capacity: number;
+  }
+  
+  export interface TableUpdate {
+    status: string;
+    current_order_id?: number;
+  }
+  
+  export interface Table {
+    id: number;
+    table_number: number;
+    capacity: number;
+    status: string;
+    current_order_id?: number;
+  }
+  
+  // API 요청 파라미터 타입
+  export interface PaginationParams {
+    skip?: number;
+    limit?: number;
   }

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from Menu.menu_crud import *
-from Menu.menu_schema import MenuItem 
+from Menu.menu_schema import MenuItem, MenuItemCreate
 
 router = APIRouter()
 

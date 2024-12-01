@@ -58,7 +58,7 @@ export const TableGrid = ({ tables, onStatusChange }: TableGridProps) => {
             <Button 
               size="sm" 
               variant={table.status === 'occupied' ? 'default' : 'outline'}
-              onClick={() => onStatusChange(table.table_number, 'occupied')}
+              onClick={() => onStatusChange(table.table_number 'occupied')}
             >
               사용중
             </Button>
