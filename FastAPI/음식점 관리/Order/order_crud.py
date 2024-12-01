@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from core.models import *
-from Order.order_schema import *
+from Order.order_schema import OrderCreate, OrderUpdate
 from datetime import datetime, timedelta
 from typing import Dict, List
 

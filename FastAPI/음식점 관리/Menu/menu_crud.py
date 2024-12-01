@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from core.base import get_db
 from Menu import menu_crud
-from Menu.menu_schema import *
+from Menu.menu_schema import MenuItemCreate
+from core.models import MenuItem
 
 def create_menu_item(db: Session, item: MenuItemCreate):
     db_item = MenuItem(**item.dict())

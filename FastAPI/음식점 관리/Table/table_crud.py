@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from core.models import *
-from .table_schema import *
+from .table_schema import TableCreate, TableUpdate
 
 def get_table(db: Session, table_number: int):
     return db.query(Table).filter(Table.table_number == table_number).first()

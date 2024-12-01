@@ -3,8 +3,17 @@ from Queue import queue_router
 from Table import table_router
 from Order import analytics
 from Menu import menu_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Restaurant Queue Management System")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 라우터 등록
 app.include_router(queue_router.router, tags=["queue"])

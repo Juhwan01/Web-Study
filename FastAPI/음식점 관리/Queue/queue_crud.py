@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from core.models import Queue
-from .queue_schema import *
+from .queue_schema import QueueCreate, QueueUpdate
 from datetime import datetime
 import qrcode
 

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class MenuItemBase(BaseModel):
     name: str
     price: float
-    description: Optional[str]
+    description: Optional[str] = None
     category: str
     is_available: bool = True
 
