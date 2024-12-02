@@ -8,13 +8,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Queue } from "@/types";
 
 interface QueueListProps {
   queues: Queue[];
+  onStatusChange: (queueNumber: string, status: string) => Promise<void>;
 }
 
-export const QueueList: FC<QueueListProps> = ({ queues }) => {
+export const QueueList: FC<QueueListProps> = ({ queues, onStatusChange }) => {
   return (
     <div className="rounded-md border bg-white">
       <Table>
@@ -25,7 +27,8 @@ export const QueueList: FC<QueueListProps> = ({ queues }) => {
             <TableHead>인원</TableHead>
             <TableHead>대기시간</TableHead>
             <TableHead>상태</TableHead>
-            <TableHead className="text-right">등록시간</TableHead>
+            <TableHead>등록시간</TableHead>
+            <TableHead className="text-right">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -52,8 +55,38 @@ export const QueueList: FC<QueueListProps> = ({ queues }) => {
                   }
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell>
                 {new Date(queue.created_at).toLocaleTimeString()}
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  {queue.status === 'waiting' && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => onStatusChange(queue.queue_number, 'called')}
+                    >
+                      호출
+                    </Button>
+                  )}
+                  {queue.status === 'called' && (
+                    <Button 
+                      size="sm"
+                      variant="success"
+                      onClick={() => onStatusChange(queue.queue_number, 'seated')}
+                    >
+                      착석
+                    </Button>
+                  )}
+                  {queue.status === 'waiting' && (
+                    <Button 
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => onStatusChange(queue.queue_number, 'cancelled')}
+                    >
+                      취소
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

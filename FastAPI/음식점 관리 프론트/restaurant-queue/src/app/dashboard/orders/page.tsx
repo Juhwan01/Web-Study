@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { OrderList } from "@/components/orders/order-list";
-import { Order, MenuItem } from "@/types";
-import { api } from "@/lib/axios";
+import { useState, useEffect } from 'react';
+import { OrderList } from '@/components/orders/order-list';
+import { Order, MenuItem } from '@/types';
+import { api } from '@/lib/axios';
 import { useToast } from "@/components/ui/use-toast";
 import {
   Tabs,
@@ -21,7 +21,7 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const { data } = await api.get<Order[]>("/orders/");
+      const { data } = await api.get<Order[]>('/orders/');
       setOrders(data);
     } catch (error) {
       toast({
@@ -45,26 +45,24 @@ export default function OrdersPage() {
     }
   };
 
-  useEffect(() => {
-    Promise.all([fetchOrders(), fetchMenuItems()]).finally(() => {
-      setIsLoading(false);
-    });
-
-    // 주문 목록 실시간 업데이트
-    const interval = setInterval(fetchOrders, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleStatusChange = async (orderId: number, status: Order['status']) => {
+  const handleStatusChange = async (orderId: number, status: string) => {
     try {
-      await api.patch(`/orders/${orderId}`, { status });
-      await fetchOrders();
+      const updateData = {
+        status,
+        completed_at: ['paid', 'cancelled'].includes(status) ? 
+          new Date().toISOString() : 
+          null
+      };
+
+      await api.patch(`/orders/${orderId}`, updateData);
+      await fetchOrders();  // 여기서 사용
       
       toast({
         title: "상태 변경 완료",
         description: `주문 #${orderId}의 상태가 변경되었습니다.`,
       });
     } catch (error) {
+      console.error('Error updating order:', error);
       toast({
         variant: "destructive",
         title: "에러",
@@ -72,6 +70,15 @@ export default function OrdersPage() {
       });
     }
   };
+
+  useEffect(() => {
+    Promise.all([fetchOrders(), fetchMenuItems()]).finally(() => {
+      setIsLoading(false);
+    });
+
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoading) {
     return (
@@ -85,11 +92,11 @@ export default function OrdersPage() {
   const completedOrders = orders.filter(order => ['paid', 'cancelled'].includes(order.status));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold">주문 관리</h1>
       
       <Tabs defaultValue="active" className="w-full">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="active">
             진행중 ({activeOrders.length})
           </TabsTrigger>
@@ -97,7 +104,7 @@ export default function OrdersPage() {
             완료 ({completedOrders.length})
           </TabsTrigger>
         </TabsList>
-
+        
         <TabsContent value="active" className="mt-4">
           <OrderList
             orders={activeOrders}
@@ -105,7 +112,7 @@ export default function OrdersPage() {
             onStatusChange={handleStatusChange}
           />
         </TabsContent>
-
+        
         <TabsContent value="completed" className="mt-4">
           <OrderList
             orders={completedOrders}

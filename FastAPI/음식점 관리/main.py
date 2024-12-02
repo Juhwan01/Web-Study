@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from Queue import queue_router
 from Table import table_router
-from Order import analytics
+from Order import analytics, order_router
 from Menu import menu_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -20,6 +20,8 @@ app.include_router(queue_router.router, tags=["queue"])
 app.include_router(table_router.router, tags=["table"])
 app.include_router(analytics.router, tags=["analytics"])
 app.include_router(menu_router.router, tags=["menu"])
+app.include_router(order_router.router, tags=["order"])
+
 
 @app.get("/")
 def read_root():

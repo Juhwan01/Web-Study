@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import { api } from '@/lib/axios';
 
 const formSchema = z.object({
   customer_name: z.string().min(2, "이름은 2글자 이상이어야 합니다."),

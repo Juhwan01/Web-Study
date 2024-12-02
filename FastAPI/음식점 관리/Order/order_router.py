@@ -18,6 +18,10 @@ def read_order(order_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Order not found")
     return db_order
 
+@router.get("/orders/", response_model=List[Order])
+def read_orders(db: Session = Depends(get_db)):
+    return order_crud.get_orders(db)
+
 @router.get("/tables/{table_id}/orders", response_model=List[Order])
 def read_table_orders(table_id: int, db: Session = Depends(get_db)):
     return order_crud.get_table_orders(db, table_id=table_id)

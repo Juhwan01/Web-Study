@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
-  table_number: z.string().min(1, "테이블 번호를 입력해주세요"),
+  table_number: z.number().min(1, "테이블 번호를 입력해주세요"),
   capacity: z.number().min(1, "최소 1명 이상이어야 합니다"),
 });
 
@@ -27,7 +26,7 @@ export const TableForm = ({ onSubmit, onCancel }: TableFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      table_number: "",
+      table_number: undefined,
       capacity: 4,
     },
   });
@@ -42,7 +41,12 @@ export const TableForm = ({ onSubmit, onCancel }: TableFormProps) => {
             <FormItem>
               <FormLabel>테이블 번호</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="예: A1, B2" />
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={e => field.onChange(parseInt(e.target.value))}
+                  placeholder="예: 1, 2, 3"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -58,7 +62,7 @@ export const TableForm = ({ onSubmit, onCancel }: TableFormProps) => {
                 <Input
                   type="number"
                   {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  onChange={e => field.onChange(parseInt(e.target.value))}
                   min={1}
                 />
               </FormControl>

@@ -25,6 +25,16 @@ export interface MenuItem {
     notes?: string;
   }
   
+  export interface Order {
+    id: number;
+    table_id: number;
+    items: OrderItem[];
+    status: string;
+    created_at: string;
+    completed_at: string | null;
+    total_amount: number;
+  }
+  
   export interface OrderCreate {
     table_id: number;
     items: OrderItem[];
@@ -32,18 +42,9 @@ export interface MenuItem {
   
   export interface OrderUpdate {
     status: string;
-    completed_at?: string;
+    completed_at?: string | null;  // null도 가능하도록 수정
   }
   
-  export interface Order {
-    id: number;
-    table_id: number;
-    items: OrderItem[];
-    status: string;
-    created_at: string;
-    completed_at?: string;
-    total_amount: number;
-  }
   
   // Queue Types
   export interface QueueCreate {
@@ -92,8 +93,8 @@ export interface MenuItem {
   }
   
   export interface TableUpdate {
-    status: string;
-    current_order_id?: number;
+    status?: string;
+    current_order_id?: number | null;
   }
   
   export interface Table {

@@ -1,10 +1,8 @@
-// app/(dashboard)/tables/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
 import { TableGrid } from '@/components/tables/table-grid';
-import { TableForm } from '@/components/tables/table-form';
-import { Table } from '@/types';
+import { Table, MenuItem, OrderItem, TableUpdate} from '@/types';
 import { api } from '@/lib/axios';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -15,9 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2, Plus } from "lucide-react";
+import { TableForm } from '@/components/tables/table-form';
 
 export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -32,19 +32,39 @@ export default function TablesPage() {
         title: "에러",
         description: "테이블 정보를 불러오는데 실패했습니다.",
       });
+    }
+  };
+
+  const fetchMenuItems = async () => {
+    try {
+      const { data } = await api.get<MenuItem[]>('/menu/');
+      setMenuItems(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "에러",
+        description: "메뉴 정보를 불러오는데 실패했습니다.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTables();
+    Promise.all([fetchTables(), fetchMenuItems()]);
   }, []);
 
-  const handleStatusChange = async (tableNumber: string, status: Table['status']) => {
+  const handleStatusChange = async (tableNumber: number, status: string) => {
     try {
-      await api.patch(`/tables/${tableNumber}`, { status });
-      await fetchTables(); // 테이블 정보 새로고침
+      // TableUpdate 인터페이스에 따라 요청 데이터 구성
+      const updateData: TableUpdate = {
+        status,
+        current_order_id: null  // 또는 이 필드는 생략 가능 - Optional이므로
+      };
+  
+      // URL에 table_number가 path parameter로 들어가야 함
+      await api.patch(`/tables/${tableNumber}`, updateData);
+      await fetchTables();
       
       toast({
         title: "상태 변경 완료",
@@ -59,7 +79,40 @@ export default function TablesPage() {
     }
   };
 
-  const handleCreateTable = async (data: { table_number: string; capacity: number }) => {
+  const handleCreateOrder = async (tableId: number, items: OrderItem[]) => {
+    try {
+      // 주문 생성
+      await api.post('/orders/', {
+        table_id: tableId,
+        items: items
+      });
+      
+      // 약간의 딜레이를 주어 주문 생성이 완전히 처리되도록 함
+      setTimeout(async () => {
+        try {
+          // 테이블 상태 변경
+          await api.patch(`/tables/${tableId}`, { status: 'occupied' });
+          await fetchTables();
+        } catch (error) {
+          // 테이블 상태 변경 실패는 조용히 처리
+          console.log('테이블 상태 변경 실패:', error);
+        }
+      }, 500);
+      
+      toast({
+        title: "주문 완료",
+        description: "주문이 성공적으로 생성되었습니다.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "에러",
+        description: "주문 생성에 실패했습니다.",
+      });
+    }
+  };
+  
+  const handleCreateTable = async (data: { table_number: number; capacity: number }) => {
     try {
       await api.post('/tables/', {
         ...data,
@@ -82,6 +135,7 @@ export default function TablesPage() {
     }
   };
 
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -102,7 +156,9 @@ export default function TablesPage() {
 
       <TableGrid 
         tables={tables}
+        menuItems={menuItems}
         onStatusChange={handleStatusChange}
+        onCreateOrder={handleCreateOrder}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

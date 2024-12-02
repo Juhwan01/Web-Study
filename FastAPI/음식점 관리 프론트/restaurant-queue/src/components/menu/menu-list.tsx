@@ -30,7 +30,7 @@ export const MenuList = ({ items, onEdit, onDelete }: MenuListProps) => {
       </TableHeader>
       <TableBody>
         {items.map((item) => (
-          <TableRow key={item.menu_item_id}>
+          <TableRow key={item.id}>
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell>{item.category}</TableCell>
             <TableCell className="text-right">
@@ -49,7 +49,7 @@ export const MenuList = ({ items, onEdit, onDelete }: MenuListProps) => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onDelete(item.menu_item_id)}
+                  onClick={() => onDelete(item.id)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

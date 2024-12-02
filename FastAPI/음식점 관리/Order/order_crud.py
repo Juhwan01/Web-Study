@@ -1,19 +1,43 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from core.models import *
 from Order.order_schema import OrderCreate, OrderUpdate
+from core.models import Order, OrderItem, MenuItem
 from datetime import datetime, timedelta
 from typing import Dict, List
 
 def create_order(db: Session, order: OrderCreate):
+    # 새 주문 생성
     db_order = Order(
-        **order.dict(),
-        status="pending",
-        total_amount=calculate_total_amount(order.items)
+        table_id=order.table_id,
+        status="pending"
     )
     db.add(db_order)
+    db.flush()  # ID 생성을 위해 flush
+    
+    # 주문 항목 생성
+    order_items = []
+    total_amount = 0
+    
+    for item in order.items:
+        menu_item = db.query(MenuItem).get(item.menu_item_id)
+        if not menu_item:
+            raise ValueError(f"Menu item {item.menu_item_id} not found")
+            
+        order_item = OrderItem(
+            order_id=db_order.id,
+            menu_item_id=item.menu_item_id,
+            quantity=item.quantity,
+            price=menu_item.price,
+            notes=item.notes
+        )
+        order_items.append(order_item)
+        total_amount += menu_item.price * item.quantity
+    
+    db.bulk_save_objects(order_items)
+    db_order.total_amount = total_amount
     db.commit()
     db.refresh(db_order)
+    
     return db_order
 
 def get_order(db: Session, order_id: int):
@@ -37,18 +61,12 @@ def update_order(db: Session, order_id: int, order_update: OrderUpdate):
     db.refresh(db_order)
     return db_order
 
-def calculate_total_amount(db: Session, items: List[Dict]) -> float:
+def calculate_total_amount(order_items: List[OrderItem]) -> float:
     total = 0
-    for item in items:
-        menu_item = db.query(MenuItem)\
-            .filter(MenuItem.id == item["item_id"])\
-            .first()
-        if not menu_item:
-            raise ValueError(f"Menu item {item['item_id']} not found")
-        if not menu_item.is_available:
-            raise ValueError(f"Menu item {item['item_id']} is not available")
-            
-        total += menu_item.price * item["quantity"]
+    for item in order_items:
+        menu_item = MenuItem.get(item.menu_item_id)  # 메뉴 아이템의 가격 조회
+        if menu_item:
+            total += menu_item.price * item.quantity
     return total
 
 def analyze_table_turnover(db: Session) -> Dict:
@@ -193,3 +211,6 @@ def get_daily_statistics(db: Session) -> Dict:
     }
     
     return stats
+
+def get_orders(db: Session):
+    return db.query(Order).all()

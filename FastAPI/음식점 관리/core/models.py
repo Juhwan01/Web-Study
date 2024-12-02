@@ -32,14 +32,31 @@ class Order(Base):
     __tablename__ = "orders"
     
     id = Column(Integer, primary_key=True, index=True)
-    table_id = Column(Integer, ForeignKey("tables.id"))
+    table_id = Column(Integer, ForeignKey("tables.table_number"))
     status = Column(String)
+    total_amount = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
-    items = Column(JSON)  # {menu_item_id, quantity, notes}
-    total_amount = Column(Float, default=0.0)
     
+    # Relationships
     table = relationship("Table", back_populates="orders")
+    items = relationship("OrderItem", back_populates="order")
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"))
+    menu_item_id = Column(Integer, ForeignKey("menu_items.id"))
+    quantity = Column(Integer)
+    price = Column(Float)
+    notes = Column(String, nullable=True)
+    
+    # Relationships
+    order = relationship("Order", back_populates="items")
+    menu_item = relationship("MenuItem")
+
+
 
 class MenuItem(Base):
     __tablename__ = "menu_items"

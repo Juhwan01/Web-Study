@@ -49,7 +49,7 @@ export default function MenuPage() {
   }) => {
     try {
       if (selectedItem) {
-        await api.patch(`/menu/${selectedItem.menu_item_id}`, data);
+        await api.patch(`/menu/${selectedItem.id}`, data);
         toast({
           title: "메뉴 수정 완료",
           description: "메뉴가 성공적으로 수정되었습니다.",
