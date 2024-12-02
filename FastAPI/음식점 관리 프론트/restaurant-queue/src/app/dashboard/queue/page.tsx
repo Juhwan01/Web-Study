@@ -55,25 +55,20 @@ export default function QueuePage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleStatusChange = async (orderId: number, status: string) => {
+  const handleStatusChange = async (queueNumber: string, status: string) => {
     try {
-      // OrderUpdate 스키마에 맞춰서 데이터 구성
-      const updateData = {
+      await api.patch(`/queue/${queueNumber}`, {
         status,
-        completed_at: ['paid', 'cancelled'].includes(status) ? 
-          new Date().toISOString() : 
-          null
-      };
-  
-      await api.patch(`/orders/${orderId}`, updateData);
-      await fetchOrders();
+        seated_at: status === 'seated' ? new Date().toISOString() : null
+      });
       
+      await fetchQueues();
+
       toast({
         title: "상태 변경 완료",
-        description: `주문 #${orderId}의 상태가 변경되었습니다.`,
+        description: `대기번호 ${queueNumber}의 상태가 변경되었습니다.`,
       });
     } catch (error) {
-      console.error('Error updating order:', error);  // 에러 로깅 추가
       toast({
         variant: "destructive",
         title: "에러",
